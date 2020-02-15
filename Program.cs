@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Globalization;
+using System.IO;
 
 namespace Bank
 {
@@ -222,9 +224,182 @@ namespace Bank
 
     class Program
     {
+        /// <summary>
+        /// Загружает базу из файла
+        /// </summary>
+        /// <param name="fileName">Путь или имя файла</param>
+        /// <returns>Массив клиентов банка</returns>
+        private static Client[] ImportFromFile(string fileName)
+        {
+            try
+            {
+                string[] lines = File.ReadAllLines(fileName);
+                int clientCount = int.Parse(lines[0]);
+                Client[] clients = new Client[clientCount];
+                for (int i = 0; i < clientCount; i++)
+                {
+                    string clientType = lines[i + 1].Split(":")[0].Trim();
+                    string[] args = lines[i + 1].Split(":")[1].Split(",");
+                    switch (clientType)
+                    {
+                        case "contributor":
+                            clients[i] = new Contributor(args[0].Trim(), double.Parse(args[1].Trim(), CultureInfo.InvariantCulture), double.Parse(args[2].Trim(), CultureInfo.InvariantCulture), args[3].Trim());
+                            break;
+                        case "creditor":
+                            if (args.Length == 4)
+                            {
+                                clients[i] = new Creditor(args[0].Trim(), double.Parse(args[1].Trim(), CultureInfo.InvariantCulture), double.Parse(args[2].Trim(), CultureInfo.InvariantCulture), args[3].Trim());
+                            } else
+                            {
+                                clients[i] = new Creditor(args[0].Trim(), double.Parse(args[1].Trim(), CultureInfo.InvariantCulture), double.Parse(args[2].Trim(), CultureInfo.InvariantCulture), args[3].Trim(), double.Parse(args[4].Trim(), CultureInfo.InvariantCulture));
+                            }
+                            
+                            break;
+
+                        case "organization":
+                            if (args.Length == 3)
+                            {
+                                clients[i] = new Organization(args[0].Trim(), args[1].Trim(), args[2].Trim());
+                            }
+                            else { 
+                                clients[i] = new Organization(args[0].Trim(), args[1].Trim(), args[2].Trim(), double.Parse(args[3].Trim(), CultureInfo.InvariantCulture));
+                            }
+                            break;
+
+                         default:
+                            break;
+                     }
+                }
+                return clients;
+            } catch (FileNotFoundException)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Файл не найден");
+                Console.ResetColor();
+                return new Client[] { };
+            }
+        }
+
+        /// <summary>
+        /// Выводит всех клиентов банка в консоль
+        /// </summary>
+        /// <param name="clients">Массив клиентов банка</param>
+        private static void DisplayAll(Client[] clients)
+        {
+            if (clients.Length == 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Нет ни одного клиента");
+                Console.ResetColor();
+                return;
+            }
+            foreach (var client in clients)
+            {
+                client.Display();
+            }
+        }
+
+        /// <summary>
+        /// Поиск по дате
+        /// </summary>
+        /// <param name="clients">массив клиентов банка</param>
+        /// <param name="searchDate">Дата для поиска</param>
+        private static void SearchByDate(Client[] clients, string searchDate)
+        {
+            bool zero = true;
+            foreach(var client in clients)
+            {
+                if (client.CheckDate(searchDate))
+                {
+                    client.Display();
+                    zero = false;
+                }
+            }
+            if (zero)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Поиск не дал результатов");
+                Console.ResetColor();
+            }
+        }
+
+        /// <summary>
+        /// Сценарий импорта из фйла
+        /// </summary>
+        /// <returns>массив клиентов банка</returns>
+        static Client[] ShowImportFromFile()
+        {
+            Console.Write("Введите имя файла для импорта: ");
+            string fileName = Console.ReadLine();
+            return ImportFromFile(fileName);
+        }
+
+        /// <summary>
+        /// Показать список доступных команд
+        /// </summary>
+        static void ShowHelp()
+        {
+            Console.WriteLine("Управление банком:");
+            Console.WriteLine("    Помощь - help");
+            Console.WriteLine("    Вывести всех клиентов - list");
+            Console.WriteLine("    Поиск по дате - find");
+            Console.WriteLine("    Очистить консоль - clear");
+            Console.WriteLine("    Выход - quit");
+        }
+
+        /// <summary>
+        /// Показать всех клиентов банка
+        /// </summary>
+        /// <param name="clients">массив клиентов банка</param>
+        static void ShowClients(Client[] clients)
+        {
+            DisplayAll(clients);
+        }
+
+        /// <summary>
+        /// Показать сценарий поиска по дате
+        /// </summary>
+        /// <param name="clients">массив клиентов банка</param>
+        static void ShowSearch(Client[] clients)
+        {
+            Console.Write("Поиск по дате (дд.мм.гггг): ");
+            string searchString = Console.ReadLine();
+            SearchByDate(clients, searchString);
+        }
+
+        /// <summary>
+        /// Основная логика программы и CLI
+        /// </summary>
+        /// <param name="args"></param>
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Client[] clients = ShowImportFromFile();
+            ShowHelp();
+            while (true)
+            {
+                Console.Write(">");
+                string cmd = Console.ReadLine().Trim();
+                switch (cmd)
+                {
+                    case "help":
+                        ShowHelp();
+                        break;
+                    case "list":
+                        ShowClients(clients);
+                        break;
+                    case "find":
+                        ShowSearch(clients);
+                        break;
+                    case "clear":
+                        Console.Clear();
+                        break;
+                    case "quit":
+                        return;
+                    default:
+                        Console.WriteLine("Неизвестная команда");
+                        break;
+                }
+            }
         }
     }
 }
