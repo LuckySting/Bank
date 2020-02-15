@@ -76,6 +76,41 @@ namespace Bank
         }
     }
 
+    sealed class Creditor : Client
+    {
+        private double credit;
+        private double creditPercent;
+        private double debt;
+        private string creditStart
+        {
+            get
+            {
+                return this.accessionDate;
+            }
+
+            set
+            {
+                this.accessionDate = value;
+            }
+        }
+
+        public Creditor(string name, double credit, double creditPercent, string creditStart, double debt = -1) : base(name, creditStart)
+        {
+            this.credit = credit;
+            this.creditPercent = creditPercent;
+            this.debt = debt == -1 ? credit : debt;
+        }
+
+        public sealed override void Display()
+        {
+            Console.WriteLine("Кредитор " + this.name + ":");
+            Console.WriteLine("    Размер кредита: " + this.credit);
+            Console.WriteLine("    Процент кредита: " + this.creditPercent);
+            Console.WriteLine("    Дата выдачи кредита: " + this.creditStart);
+            Console.WriteLine("    Остаток долга: " + this.debt);
+        }
+    }
+
     class Program
     {
         static void Main(string[] args)
