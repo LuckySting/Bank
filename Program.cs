@@ -111,6 +111,37 @@ namespace Bank
         }
     }
 
+    sealed class Organization : Client
+    {
+        private string accountNumber;
+        private double accountValue;
+        private string accountStart
+        {
+            get
+            {
+                return this.accessionDate;
+            }
+
+            set
+            {
+                this.accessionDate = value;
+            }
+        }
+
+        public Organization(string name, string accountNumber, double accountValue, string accountStart) : base(name, accountStart)
+        {
+            this.accountNumber = accountNumber;
+            this.accountValue = accountValue;
+        }
+
+        public sealed override void Display()
+        {
+            Console.WriteLine("Организация \"" + this.name + "\":");
+            Console.WriteLine("    Номер счёта: " + this.accountNumber);
+            Console.WriteLine("    Остаток на счёте: " + this.accountValue);
+            Console.WriteLine("    Дата открытия счёта: " + this.accountStart);
+        }
+    }
     class Program
     {
         static void Main(string[] args)
