@@ -11,14 +11,23 @@ namespace Bank
         /// Имя клиента
         /// </summary>
         protected string name;
+
         /// <summary>
         /// Дата заключения договора с банком
         /// </summary>
         protected string accessionDate;
+
         /// <summary>
-        /// Метод вывода информации о клиенте на экран
+        /// Конструктор класса
         /// </summary>
-        public abstract void Display();
+        /// <param name="name">Имя клиента</param>
+        /// <param name="accessionDate">Дата присоединения</param>
+        public Client(string name, string accessionDate)
+        {
+            this.name = name;
+            this.accessionDate = accessionDate;
+        }
+
         /// <summary>
         /// Проверка на принадлежность к дате
         /// </summary>
@@ -28,7 +37,45 @@ namespace Bank
         {
             return date == this.accessionDate;
         }
+
+        /// <summary>
+        /// Метод вывода информации о клиенте на экран
+        /// </summary>
+        public abstract void Display();
     }
+
+    sealed class Contributor : Client
+    {
+        private double deposit;
+        private double depositPercent;
+        private string depositStart
+        {
+            get
+            {
+                return this.accessionDate;
+            }
+            
+            set
+            {
+                this.accessionDate = value;
+            }
+        }
+
+        public Contributor (string name, double deposit, double depositPercent, string depositStart) : base(name, depositStart)
+        {
+            this.deposit = deposit;
+            this.depositPercent = depositPercent;
+        }
+
+        public sealed override void Display()
+        {
+            Console.WriteLine("Вкладчик " + this.name + ":");
+            Console.WriteLine("    Размер вклада: " + this.deposit);
+            Console.WriteLine("    Процент вклада: " + this.depositPercent);
+            Console.WriteLine("    Дата открытия вклада: " + this.depositStart);
+        }
+    }
+
     class Program
     {
         static void Main(string[] args)
