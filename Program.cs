@@ -44,10 +44,24 @@ namespace Bank
         public abstract void Display();
     }
 
+    /// <summary>
+    /// Класс для вкладчика
+    /// </summary>
     sealed class Contributor : Client
     {
+        /// <summary>
+        /// Размер вклада
+        /// </summary>
         private double deposit;
+
+        /// <summary>
+        /// Процент по вкладу
+        /// </summary>
         private double depositPercent;
+
+        /// <summary>
+        /// Дата открытия вклада
+        /// </summary>
         private string depositStart
         {
             get
@@ -61,12 +75,22 @@ namespace Bank
             }
         }
 
+        /// <summary>
+        /// Конструктор класса
+        /// </summary>
+        /// <param name="name">Фамилия вкладчика</param>
+        /// <param name="deposit">Размер вклада</param>
+        /// <param name="depositPercent">Процент по вкладу</param>
+        /// <param name="depositStart">Дата открытия вклада</param>
         public Contributor (string name, double deposit, double depositPercent, string depositStart) : base(name, depositStart)
         {
             this.deposit = deposit;
             this.depositPercent = depositPercent;
         }
 
+        /// <summary>
+        /// Метод выводит информацию о вкладчике на экран
+        /// </summary>
         public sealed override void Display()
         {
             Console.WriteLine("Вкладчик " + this.name + ":");
@@ -76,11 +100,29 @@ namespace Bank
         }
     }
 
+    /// <summary>
+    /// Класс кредитора
+    /// </summary>
     sealed class Creditor : Client
     {
+        /// <summary>
+        /// Сумма кредита
+        /// </summary>
         private double credit;
+
+        /// <summary>
+        /// Процент по кредиту
+        /// </summary>
         private double creditPercent;
+
+        /// <summary>
+        /// Остаток долга
+        /// </summary>
         private double debt;
+
+        /// <summary>
+        /// Дата открытия кредита
+        /// </summary>
         private string creditStart
         {
             get
@@ -94,6 +136,14 @@ namespace Bank
             }
         }
 
+        /// <summary>
+        /// Конструктор класса
+        /// </summary>
+        /// <param name="name">Имя кредитора</param>
+        /// <param name="credit">Сумма кредита</param>
+        /// <param name="creditPercent">Процент по кредиту</param>
+        /// <param name="creditStart">Дата открытия кредита</param>
+        /// <param name="debt">Остаток долга, по умлочанию равен сумме кредита</param>
         public Creditor(string name, double credit, double creditPercent, string creditStart, double debt = -1) : base(name, creditStart)
         {
             this.credit = credit;
@@ -101,6 +151,9 @@ namespace Bank
             this.debt = debt == -1 ? credit : debt;
         }
 
+        /// <summary>
+        /// Метод выводит информацию о кредиторе на экран
+        /// </summary>
         public sealed override void Display()
         {
             Console.WriteLine("Кредитор " + this.name + ":");
@@ -111,10 +164,24 @@ namespace Bank
         }
     }
 
+    /// <summary>
+    /// Класс организациии
+    /// </summary>
     sealed class Organization : Client
     {
+        /// <summary>
+        /// Номер счёта
+        /// </summary>
         private string accountNumber;
+
+        /// <summary>
+        /// Остаток на счёте
+        /// </summary>
         private double accountValue;
+
+        /// <summary>
+        /// Дата открытия счёта
+        /// </summary>
         private string accountStart
         {
             get
@@ -128,12 +195,22 @@ namespace Bank
             }
         }
 
-        public Organization(string name, string accountNumber, double accountValue, string accountStart) : base(name, accountStart)
+        /// <summary>
+        /// Конструктор класса
+        /// </summary>
+        /// <param name="name">Имя организации</param>
+        /// <param name="accountNumber">Номер счёта</param>
+        /// <param name="accountStart">Дата открытия счёта</param>
+        /// /// <param name="accountValue">Остаток на счёте, по умолчанию 0</param>
+        public Organization(string name, string accountNumber, string accountStart, double accountValue = 0) : base(name, accountStart)
         {
             this.accountNumber = accountNumber;
             this.accountValue = accountValue;
         }
 
+        /// <summary>
+        /// Метод выводит информацию об Организации на экран
+        /// </summary>
         public sealed override void Display()
         {
             Console.WriteLine("Организация \"" + this.name + "\":");
@@ -142,6 +219,7 @@ namespace Bank
             Console.WriteLine("    Дата открытия счёта: " + this.accountStart);
         }
     }
+
     class Program
     {
         static void Main(string[] args)
