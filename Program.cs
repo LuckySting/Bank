@@ -1,23 +1,30 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
+using System.Diagnostics;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace Bank
 {
     /// <summary>
     /// Абстрактный класс клиента банка
     /// </summary>
-    abstract class Client
+    [XmlInclude(typeof(Contributor))]
+    [XmlInclude(typeof(Creditor))]
+    [XmlInclude(typeof(Organization))]
+    [Serializable]
+    public abstract class Client
     {
         /// <summary>
         /// Имя клиента
         /// </summary>
-        protected string name;
+        public string name;
 
         /// <summary>
         /// Дата заключения договора с банком
         /// </summary>
-        protected string accessionDate;
+        public string accessionDate;
 
         /// <summary>
         /// Конструктор класса
@@ -30,6 +37,8 @@ namespace Bank
             this.accessionDate = accessionDate;
         }
 
+        public Client() { }
+
         /// <summary>
         /// Проверка на принадлежность к дате
         /// </summary>
@@ -37,6 +46,7 @@ namespace Bank
         /// <returns>Булево значение: совпадает дата с искомой или нет?</returns>
         public bool CheckDate(string date)
         {
+            Trace.WriteLine("Client.CheckDate");
             return date == this.accessionDate;
         }
 
@@ -49,22 +59,23 @@ namespace Bank
     /// <summary>
     /// Класс для вкладчика
     /// </summary>
-    sealed class Contributor : Client
+    [Serializable]
+    public sealed class Contributor : Client
     {
         /// <summary>
         /// Размер вклада
         /// </summary>
-        private double deposit;
+        public double deposit;
 
         /// <summary>
         /// Процент по вкладу
         /// </summary>
-        private double depositPercent;
+        public double depositPercent;
 
         /// <summary>
         /// Дата открытия вклада
         /// </summary>
-        private string depositStart
+        public string depositStart
         {
             get
             {
@@ -86,15 +97,19 @@ namespace Bank
         /// <param name="depositStart">Дата открытия вклада</param>
         public Contributor (string name, double deposit, double depositPercent, string depositStart) : base(name, depositStart)
         {
+            Trace.WriteLine("Contributor.Contributor");
             this.deposit = deposit;
             this.depositPercent = depositPercent;
         }
+
+        public Contributor() { }
 
         /// <summary>
         /// Метод выводит информацию о вкладчике на экран
         /// </summary>
         public sealed override void Display()
         {
+            Trace.WriteLine("Contributor.Display");
             Console.WriteLine("Вкладчик " + this.name + ":");
             Console.WriteLine("    Размер вклада: " + this.deposit);
             Console.WriteLine("    Процент вклада: " + this.depositPercent);
@@ -105,27 +120,28 @@ namespace Bank
     /// <summary>
     /// Класс кредитора
     /// </summary>
-    sealed class Creditor : Client
+    [Serializable]
+    public sealed class Creditor : Client
     {
         /// <summary>
         /// Сумма кредита
         /// </summary>
-        private double credit;
+        public double credit;
 
         /// <summary>
         /// Процент по кредиту
         /// </summary>
-        private double creditPercent;
+        public double creditPercent;
 
         /// <summary>
         /// Остаток долга
         /// </summary>
-        private double debt;
+        public double debt;
 
         /// <summary>
         /// Дата открытия кредита
         /// </summary>
-        private string creditStart
+        public string creditStart
         {
             get
             {
@@ -148,16 +164,20 @@ namespace Bank
         /// <param name="debt">Остаток долга, по умлочанию равен сумме кредита</param>
         public Creditor(string name, double credit, double creditPercent, string creditStart, double debt = -1) : base(name, creditStart)
         {
+            Trace.WriteLine("Creditor.Creditor");
             this.credit = credit;
             this.creditPercent = creditPercent;
             this.debt = debt == -1 ? credit : debt;
         }
+
+        public Creditor() { }
 
         /// <summary>
         /// Метод выводит информацию о кредиторе на экран
         /// </summary>
         public sealed override void Display()
         {
+            Trace.WriteLine("Creditor.Display");
             Console.WriteLine("Кредитор " + this.name + ":");
             Console.WriteLine("    Размер кредита: " + this.credit);
             Console.WriteLine("    Процент кредита: " + this.creditPercent);
@@ -169,22 +189,23 @@ namespace Bank
     /// <summary>
     /// Класс организациии
     /// </summary>
-    sealed class Organization : Client
+    [Serializable]
+    public sealed class Organization : Client
     {
         /// <summary>
         /// Номер счёта
         /// </summary>
-        private string accountNumber;
+        public string accountNumber;
 
         /// <summary>
         /// Остаток на счёте
         /// </summary>
-        private double accountValue;
+        public double accountValue;
 
         /// <summary>
         /// Дата открытия счёта
         /// </summary>
-        private string accountStart
+        public string accountStart
         {
             get
             {
@@ -206,15 +227,19 @@ namespace Bank
         /// /// <param name="accountValue">Остаток на счёте, по умолчанию 0</param>
         public Organization(string name, string accountNumber, string accountStart, double accountValue = 0) : base(name, accountStart)
         {
+            Trace.WriteLine("Organization.Organization");
             this.accountNumber = accountNumber;
             this.accountValue = accountValue;
         }
+
+        public Organization() { }
 
         /// <summary>
         /// Метод выводит информацию об Организации на экран
         /// </summary>
         public sealed override void Display()
         {
+            Trace.WriteLine("Organization.Display");
             Console.WriteLine("Организация \"" + this.name + "\":");
             Console.WriteLine("    Номер счёта: " + this.accountNumber);
             Console.WriteLine("    Остаток на счёте: " + this.accountValue);
@@ -231,6 +256,7 @@ namespace Bank
         /// <returns>Массив клиентов банка</returns>
         private static Client[] ImportFromFile(string fileName)
         {
+            Trace.WriteLine("Program.ImportFromFile");
             try
             {
                 string[] lines = File.ReadAllLines(fileName);
@@ -286,6 +312,7 @@ namespace Bank
         /// <param name="clients">Массив клиентов банка</param>
         private static void DisplayAll(Client[] clients)
         {
+            Trace.WriteLine("Program.DisplayAll");
             if (clients.Length == 0)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
@@ -306,6 +333,7 @@ namespace Bank
         /// <param name="searchDate">Дата для поиска</param>
         private static void SearchByDate(Client[] clients, string searchDate)
         {
+            Trace.WriteLine("Program.SearchByDate");
             bool zero = true;
             foreach(var client in clients)
             {
@@ -329,6 +357,7 @@ namespace Bank
         /// <returns>массив клиентов банка</returns>
         static Client[] ShowImportFromFile()
         {
+            Trace.WriteLine("Program.ShowImportFromFile");
             Console.Write("Введите имя файла для импорта: ");
             string fileName = Console.ReadLine();
             return ImportFromFile(fileName);
@@ -339,12 +368,15 @@ namespace Bank
         /// </summary>
         static void ShowHelp()
         {
+            Trace.WriteLine("Program.ShowHelp");
             Console.WriteLine("Управление банком:");
             Console.WriteLine("    Помощь - help");
             Console.WriteLine("    Вывести всех клиентов - list");
             Console.WriteLine("    Поиск по дате - find");
+            Console.WriteLine("    Вывести базу данных в xml - xml");
+            Console.WriteLine("    Сохранить базу данных в xml файл - drop");
             Console.WriteLine("    Очистить консоль - clear");
-            Console.WriteLine("    Выход - quit");
+            Console.WriteLine("    Выход - exit");
         }
 
         /// <summary>
@@ -353,6 +385,7 @@ namespace Bank
         /// <param name="clients">массив клиентов банка</param>
         static void ShowClients(Client[] clients)
         {
+            Trace.WriteLine("Program.ShowClients");
             DisplayAll(clients);
         }
 
@@ -362,6 +395,7 @@ namespace Bank
         /// <param name="clients">массив клиентов банка</param>
         static void ShowSearch(Client[] clients)
         {
+            Trace.WriteLine("Program.ShowSearch");
             Console.Write("Поиск по дате (дд.мм.гггг): ");
             string searchString = Console.ReadLine();
             SearchByDate(clients, searchString);
@@ -373,7 +407,9 @@ namespace Bank
         /// <param name="args"></param>
         static void Main(string[] args)
         {
+            Trace.WriteLine("Program.Main");
             Client[] clients = ShowImportFromFile();
+            XmlSerializer serializer = new XmlSerializer(typeof(Client[]));
             ShowHelp();
             while (true)
             {
@@ -390,10 +426,23 @@ namespace Bank
                     case "find":
                         ShowSearch(clients);
                         break;
+                    case "xml":
+                        using (StringWriter textWriter = new StringWriter())
+                        {
+                            serializer.Serialize(textWriter, clients);
+                            Console.WriteLine(textWriter.ToString());
+                        }
+                        break;
+                    case "drop":
+                        using (StreamWriter streamWriter = new StreamWriter("db.xml"))
+                        {
+                            serializer.Serialize(streamWriter, clients);
+                        }
+                        break;
                     case "clear":
                         Console.Clear();
                         break;
-                    case "quit":
+                    case "exit":
                         return;
                     default:
                         Console.WriteLine("Неизвестная команда");
